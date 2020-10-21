@@ -40,6 +40,7 @@ func (k Keeper) SendClaimTx(ctx sdk.Ctx, keeper Keeper, n client.Client, claimTx
 		}
 		// if the evidence length is less than minimum, it would not satisfy our merkle tree needs
 		if evidence.NumOfProofs < keeper.MinimumNumberOfProofs(sessionCtx) {
+			ctx.Logger().Info(fmt.Sprintf("DELETING EVIDENCE BECAUSE OF minimun lenght"))
 			if err := pc.DeleteEvidence(evidence.SessionHeader, evidenceType); err != nil {
 				ctx.Logger().Debug(err.Error())
 			}
@@ -63,6 +64,7 @@ func (k Keeper) SendClaimTx(ctx sdk.Ctx, keeper Keeper, n client.Client, claimTx
 		}
 		// if the claim is mature, delete it because we cannot submit a mature claim
 		if k.ClaimIsMature(ctx, evidence.SessionBlockHeight) {
+			ctx.Logger().Info(fmt.Sprintf("DELETING EVIDENCE BECAUSE OF MatureClaim"))
 			if err := pc.DeleteEvidence(evidence.SessionHeader, evidenceType); err != nil {
 				ctx.Logger().Debug(err.Error())
 			}

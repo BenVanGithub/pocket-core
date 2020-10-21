@@ -37,6 +37,8 @@ func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, proofTx func(cliCtx ut
 			continue
 		}
 		if ctx.BlockHeight()-claim.SessionBlockHeight > int64(pc.GlobalPocketConfig.MaxClaimAgeForProofRetry) {
+			ctx.Logger().Info(fmt.Sprintf("DELETING EVIDENCE BECAUSE OF MAX AGE FOR RETRY"))
+			ctx.Logger().Info(fmt.Sprintf("evidence that is older than 32 blocks"))
 			err := pc.DeleteEvidence(claim.SessionHeader, claim.EvidenceType)
 			if err != nil {
 				ctx.Logger().Info(fmt.Sprintf("unable to delete evidence that is older than 32 blocks: %s", err.Error()))
@@ -44,12 +46,16 @@ func (k Keeper) SendProofTx(ctx sdk.Ctx, n client.Client, proofTx func(cliCtx ut
 			continue
 		}
 		if !evidence.IsSealed() {
+			ctx.Logger().Info(fmt.Sprintf("DELETING EVIDENCE BECAUSE OF Not Sealed"))
+			ctx.Logger().Info(fmt.Sprintf("evidence is not sealed, could cause a relay leak"))
 			err := pc.DeleteEvidence(claim.SessionHeader, claim.EvidenceType)
 			if err != nil {
 				ctx.Logger().Info(fmt.Sprintf("evidence is not sealed, could cause a relay leak: %s", err.Error()))
 			}
 		}
 		if evidence.NumOfProofs != claim.TotalProofs {
+			ctx.Logger().Info(fmt.Sprintf("DELETING EVIDENCE BECAUSE OF NumOfProofs not valid"))
+			ctx.Logger().Info(fmt.Sprintf("evidence num of proofs does not equal claim total proofs... possible relay leak"))
 			err := pc.DeleteEvidence(claim.SessionHeader, claim.EvidenceType)
 			if err != nil {
 				ctx.Logger().Info(fmt.Sprintf("evidence num of proofs does not equal claim total proofs... possible relay leak: %s", err.Error()))
