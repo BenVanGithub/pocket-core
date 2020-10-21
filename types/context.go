@@ -126,7 +126,11 @@ func (c Context) ConsensusParams() *abci.ConsensusParams {
 	return proto.Clone(c.consParams).(*abci.ConsensusParams)
 }
 func InitCtxCache(size int) {
-	GlobalCtxCache = NewCache(size)
+	if size <= 0 {
+		GlobalCtxCache = nil
+	} else {
+		GlobalCtxCache = NewCacheWithLock(size)
+	}
 }
 
 // create a new context
